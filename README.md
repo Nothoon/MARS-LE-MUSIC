@@ -111,6 +111,8 @@ All other registers are free to use.
 
 ### Program 1: Single Note, Then Rest
 ```
+```# Program 1: Single note, then rest
+
         .text
 main:
         # 1. Set tempo (BPM)
