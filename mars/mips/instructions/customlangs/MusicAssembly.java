@@ -310,8 +310,8 @@ public class MusicAssembly extends CustomAssembly {
 
         instructionList.add(
             new BasicInstruction(
-                "playnote $t0,$t1,$t3",
-                "Play a MIDI note: pitch in $t0, duration (beats) in $t1",
+                "playnote $t1,$t2,$t3",
+                "Plays MIDI note $t1 $t2 times if note is $t3",
                 BasicInstructionFormat.R_FORMAT,
                 "000000 fffff sssss ttttt 00000 111001",
                 new SimulationCode() {
@@ -395,8 +395,8 @@ public class MusicAssembly extends CustomAssembly {
 
         instructionList.add(
             new BasicInstruction(
-                "playrest $t0,$t1",
-                "Plays a rest (silence): beats in $t0",
+                "playrest $t1,$t2",
+                "Plays a rest $t1 times if note is $t2",
                 BasicInstructionFormat.R_FORMAT,
                 "000000 fffff sssss 00000 00000 111010",
                 new SimulationCode() {
@@ -417,8 +417,8 @@ public class MusicAssembly extends CustomAssembly {
 
         instructionList.add(
             new BasicInstruction(
-                "playchord $t0,$t1",
-                "Plays notes specified in registers $s0-$s7 for a duration of $t0",
+                "playchord $t1,$t2",
+                "Plays chord stored in $s0–$s7 $t1 times if note is $t2",
                 BasicInstructionFormat.R_FORMAT,
                 "000000 fffff sssss 00000 00000 111010",
                 new SimulationCode() {
@@ -454,8 +454,8 @@ public class MusicAssembly extends CustomAssembly {
 
         instructionList.add(
             new BasicInstruction(
-                "setbpm $t0",
-                "Sets song bpm to $t0",
+                "setbpm $t1",
+                "Sets song bpm to $t1",
                 BasicInstructionFormat.R_FORMAT,
                 "000000 fffff 00000 00000 00000 111010",
                 new SimulationCode() {
@@ -474,8 +474,8 @@ public class MusicAssembly extends CustomAssembly {
 
         instructionList.add(
             new BasicInstruction(
-                "settsig $t0,$t1",
-                "Sets song time signature to $t0/$t1",
+                "settsig $t1,$t2",
+                "Sets song time signature to $t1/$t2",
                 BasicInstructionFormat.R_FORMAT,
                 "000000 00000 sssss fffff 00000 101111",
                 new SimulationCode() {
@@ -485,11 +485,11 @@ public class MusicAssembly extends CustomAssembly {
                         denominatortsig = RegisterFile.getValue(ops[1]);
                     }
                 }));
-                
+
         instructionList.add(
             new BasicInstruction(
                 "playdrumpat $t1,$t2,$t3",
-                "Plays a drum pattern (string) in $t1, $t2 drum sound, $t3 times",
+                "Plays binary pattern $t1 using drum sound $t2, $t3 times",
                 BasicInstructionFormat.R_FORMAT,
                 "000000 sssss ttttt fffff 00000 101100",
                 new SimulationCode() {
