@@ -8,106 +8,110 @@ MARS (official) MIPS Assembler and Runtime Simulator
 
  The implemented custom assembly language is Music Assembly.
 
- # Music Assembly Documentation
+# Music Assembly Documentation
 
 ## Overview
-Music Assembly is a music-making language at its core. Brief knowledge of music theory is required to understand some of the functions; however, it is easy to learn on the go. It is a modified version of MIPS that is able to manipulate notes, chords, rhythm, tempo, and drum patterns. With the use of registers, you store pitches, durations, and patterns.
+Music Assembly is a music-making language modeled after MIPS. It allows you to manipulate notes, chords, rhythm, tempo, and drum patterns using assembly-style instructions. While basic music theory helps, the system is designed to be learned quickly. Registers store musical values such as pitches, durations, and drum patterns.
+
+---
 
 ## Core Concepts
 
 ### ● Notes and Durations
-- Notes are represented by numeric pitch values (See MIDI table below for pitches).
-- Durations are expressed in beats implemented with milliseconds.
-- Choose what type of beat with 0-3
-  - 0 = quarter note
-  - 1 = eighth
-  - 2 = sixteenth
-- `playnote` and `playrest` allow for audio output.
+- Notes use **MIDI pitch numbers** (see table below).
+- Durations are measured in **beats**, internally converted to milliseconds.
+- Beat types are encoded using:
+  - `0` = quarter note  
+  - `1` = eighth note  
+  - `2` = sixteenth note  
+- `playnote` and `playrest` output sound or silence.
 
 ### ● Harmonies and Chords
-There are special instructions that compute musical intervals:
+Interval instructions allow quick chord construction:
 - `addmajor3rd`
 - `addperf5th`
 - `addmajor7th`
+- (and minor versions)
 
-Chords are stored in registers `$s0–$s7` and sounded with `playchord`.
+Chord tones are stored in **`$s0–$s7`** and played using `playchord`.
 
 ### ● Tempo and Timing
-Two explicit commands handle timing:
-- `setbpm` changes the tempo
-- `settsig` sets the time signature (implementation has no use currently but for future visual purposes it is needed)
+Two timing control instructions:
+- `setbpm` — sets the global tempo  
+- `settsig` — sets the time signature (reserved for future GUI use)
 
-These govern the base length of notes, rests, and chords.
+These affect the duration of all notes, rests, and chords.
 
 ### ● Drum Patterns
-Drum patterns use binary with 8 bitfields:
-- Example: `11001100` (1 = hit, 0 = non-hit)
-- (See MIDI table below for drum sounds)
+Drum patterns use **8-bit binary values** (1 = hit, 0 = rest):
+- Example: `11001100`
 
-`playdrumpat` plays a drum pattern using:
-- `$t1` pattern bits  
-- `$t2` drum sound  
-- `$t3` number of repeats  
+`playdrumpat` uses:
+- `$t1` — binary pattern  
+- `$t2` — drum MIDI value  
+- `$t3` — number of repeats  
 
-Additional drum commands:
+Additional one-shot drum instructions:
 - `playsnare`
 - `playkick`
 - `playchihat`
 
-
 ### ● Control Flow
-- `dalsegno` jumps back to a target label (repeat marker)
+- `dalsegno` — jumps back to a target label to repeat a section.
 
 ---
 
 ## Using Music Assembly
-- Run `Mars.jar`
-- Open the `Tools` dropdown menu at the top
-- Select `Language Switcher`
-- Select `Music Assembly`
+
+1. Open **`Mars.jar`**
+2. Go to **Tools**
+3. Select **Language Switcher**
+4. Choose **Music Assembly**
+
+---
 
 ## Basic Instructions
 
 | Name | Syntax | Binary Representation | Functionality |
-|------|--------|------------------------|---------------|
-| Load | `load $t1, $t2, imm` | `101010 sssss fffff tttttttttttttttt` | Loads immediate values such as pitch, duration, bpm, time signature into `$t1`. |
+|------|--------|------------------------|----------------|
+| Load | `load $t1, $t2, imm` | `101010 sssss fffff tttttttttttttttt` | Loads immediate values such as pitch, duration, bpm, or time signature into `$t1`. |
 | Add tone | `addtone $t1, $t2` | `000000 00000 sssss fffff 00000 010101` | Adds 2 semitones. |
 | Add semitone | `addsemitone $t1, $t2` | `000000 00000 sssss fffff 00000 101010` | Adds 1 semitone. |
 | Add major 3rd | `addmajor3rd $t1, $t2` | `000000 00000 sssss fffff 00000 111000` | Adds 4 semitones. |
 | Add minor 3rd | `addminor3rd $t1, $t2` | `000000 00000 sssss fffff 00000 111001` | Adds 3 semitones. |
-| Add perf 5th | `addperf5th $t1, $t2` | `000000 00000 sssss fffff 00000 111010` | Adds 7 semitones. |
+| Add perfect 5th | `addperf5th $t1, $t2` | `000000 00000 sssss fffff 00000 111010` | Adds 7 semitones. |
 | Add major 7th | `addmajor7th $t1, $t2` | `000000 00000 sssss fffff 00000 111011` | Adds 11 semitones. |
 | Add minor 7th | `addminor7th $t1, $t2` | `000000 00000 sssss fffff 00000 111100` | Adds 10 semitones. |
 | Dal segno | `dalsegno target` | `000010 ffffffffffffffffffffffff` | Jumps to target label. |
-| Set bpm | `setbpm $t1` | `000000 fffff 00000 00000 00000 111111` | Sets overall song bpm. |
-| Set time signature (not useful without visual music notation GUI) | `settsig $t1, $t2` | `000000 00000 sssss fffff 00000 101111` | Sets numerator + denominator. |
+| Set bpm | `setbpm $t1` | `000000 fffff 00000 00000 00000 111111` | Sets global song tempo. |
+| Set time signature | `settsig $t1, $t2` | `000000 00000 sssss fffff 00000 101111` | Sets numerator and denominator (GUI use only). |
 
 ---
 
 ## Unique Instructions
 
-| Name | Syntax | Binary Representation | Functionality |
-|------|--------|------------------------|---------------|
-| Play closed hi-hat | `playchihat` | `000000 00000 00000 00000 00000 001010` | Plays a closed hi-hat sound |
-| Play open hi-hat | `playohihat` | `000000 00000 00000 00000 00000 001011` | Plays an open hi-hat |
-| Play kick | `playkick` | `000000 00000 00000 00000 00000 001100` | Plays a kick sound |
-| Play snare | `playsnare` | `000000 00000 00000 00000 00000 001110` | Plays a snare sound |
-| Play crash | `playcrash` | `000000 00000 00000 00000 00000 001111` | Plays a crash sound |
-| Play note | `playnote $t1, $t2, $t3` | `000000 fffff sssss ttttt 00000 111001` | Plays MIDI note `$t1` `$t2` times if note is `$t3` |
-| Play chord | `playchord $t1, $t2` | `000000 fffff sssss 00000 00000 111010` | Plays chord stored in `$s0–$s7` `$t1` times if note is `$t2`|
-| Play rest | `playrest $t1, $t2` | `000000 fffff sssss 00000 00000 111010` | Plays a rest `$t1` times if note is `$t2`|
-| Play drum pattern | `playdrumpat $t1, $t2, $t3` | `000000 sssss ttttt fffff 00000 101100` | Plays binary pattern `$t1` using drum sound `$t2`, `$t3` times |
-| Play arpeggio (not implemented) | `playarpeg $t1` | `000000 fffff 00000 00000 00000 011111` | Plays arpeggio for `$t1` times using `$s0–$s7` |
+| Name | Syntax | Binary Representation | Description |
+|------|--------|------------------------|-------------|
+| Play closed hi-hat | `playchihat` | `000000 00000 00000 00000 00000 001010` | Plays a closed hi-hat sound. |
+| Play open hi-hat | `playohihat` | `000000 00000 00000 00000 00000 001011` | Plays an open hi-hat. |
+| Play kick | `playkick` | `000000 00000 00000 00000 00000 001100` | Plays a kick drum. |
+| Play snare | `playsnare` | `000000 00000 00000 00000 00000 001110` | Plays a snare drum. |
+| Play crash | `playcrash` | `000000 00000 00000 00000 00000 001111` | Plays a crash cymbal. |
+| Play note | `playnote $t1, $t2, $t3` | `000000 fffff sssss ttttt 00000 111001` | Plays MIDI note `$t1` for `$t2` beats using beat type `$t3` (0 = quarter, 1 = eighth, 2 = sixteenth). |
+| Play chord | `playchord $t1, $t2` | `000000 fffff sssss 00000 00000 111010` | Plays the chord stored in `$s0–$s7` for `$t1` beats, using beat type `$t2` (0 = quarter, 1 = eighth, 2 = sixteenth). |
+| Play rest | `playrest $t1, $t2` | `000000 fffff sssss 00000 00000 111010` | Plays silence for `$t1` beats using beat type `$t2` (0 = quarter, 1 = eighth, 2 = sixteenth). |
+| Play drum pattern | `playdrumpat $t1, $t2, $t3` | `000000 sssss ttttt fffff 00000 101100` | Plays the binary pattern in `$t1` using drum sound `$t2`, repeated `$t3` times. |
+| Play arpeggio (not implemented) | `playarpeg $t1` | `000000 fffff 00000 00000 00000 011111` | Intended to arpeggiate notes stored in `$s0–$s7` for `$t1` repetitions (not implemented). |
 
 ---
 
 ## Reserved Registers
 
-| Register(s) | Function |
-|-------------|----------|
-| `$s0–$s7` | Used to store notes for `playarpeg` and `playchord` |
+| Registers | Purpose |
+|-----------|----------|
+| `$s0–$s7` | Store notes for `playchord` and `playarpeg`. |
 
-All other registers are free to use.
+All other registers are general-purpose.
 
 ---
 
@@ -217,7 +221,7 @@ main:
 ---
 The example programs are stored in `MusicAssemblyEx1.asm`, `MusicAssemblyEx2.asm`, and `MusicAssembly3.asm` respectively.
 
-To run them open the file in `Mars.jar` choose `Music Assembly` for you language and assemble and run
+To run them open the file in `Mars.jar` choose `Music Assembly` for your language and assemble then run.
 
 ### Pitch Midi Table
 ---
